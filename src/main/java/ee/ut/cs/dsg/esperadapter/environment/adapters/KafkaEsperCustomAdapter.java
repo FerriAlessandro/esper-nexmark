@@ -26,10 +26,9 @@ import java.util.logging.Logger;
  *
  * @param <K> The key of the Kafka record
  * @param <V> The value of the Kafka record
- * @param <E> The type of the event sent to Esper
  */
 
-public class KafkaEsperCustomAdapter<K,V,E> implements EsperCustomAdapter<V,E> {
+public class KafkaEsperCustomAdapter<K, V> implements EsperCustomAdapter {
 
     public static final Logger LOGGER = Logger.getLogger(KafkaEsperCustomAdapter.class.getName());
 
@@ -99,7 +98,7 @@ public class KafkaEsperCustomAdapter<K,V,E> implements EsperCustomAdapter<V,E> {
     }
 
     @Override
-    public void process(Function<V, Pair<E,Long>> transformationFunction){
+    public void process(Function<String, Pair<Object,Long>> transformationFunction){
         long startTime = System.currentTimeMillis();
         long endTime = System.currentTimeMillis();
         long diff = endTime - startTime;
@@ -115,7 +114,7 @@ public class KafkaEsperCustomAdapter<K,V,E> implements EsperCustomAdapter<V,E> {
 
                 ConsumerRecords<K, V> records = consumer.poll(Duration.ofSeconds(2));
                 records.forEach(record -> {
-                    Pair<E, Long> value = transformationFunction.apply(record.value());
+                    Pair<Object, Long> value = transformationFunction.apply((String) record.value());
                     if (value.getSecond() == -1) {
                         endCount++;
                     }else{
@@ -148,7 +147,7 @@ public class KafkaEsperCustomAdapter<K,V,E> implements EsperCustomAdapter<V,E> {
         performanceFileBuilder.close();
     }
 
-    private void send(Pair<E,Long> eventTimestamp){
+    private void send(Pair<Object,Long> eventTimestamp){
         /*
         Here we do not advance the timestamp since with multiple partitions it can generate problems
         TODO: create separated timestamp advancements for each context

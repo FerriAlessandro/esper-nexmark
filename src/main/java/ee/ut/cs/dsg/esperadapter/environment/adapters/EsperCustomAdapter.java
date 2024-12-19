@@ -10,11 +10,10 @@ import java.util.function.Function;
  *
  * @see FileEsperCustomAdapter
  * @see KafkaEsperCustomAdapter
- * @param <V> The type of the input event
- * @param <E> The type of the event sent to Esper
+
  */
 
-public interface EsperCustomAdapter<V,E> {
+public interface EsperCustomAdapter {
 
     /**
      * This is the only method of the adapter. It is called by the
@@ -25,5 +24,5 @@ public interface EsperCustomAdapter<V,E> {
      * @param transformationFunction A function for the event transformation and timestamp extraction
      */
 
-    public void process(Function<V, Pair<E,Long>> transformationFunction);
+    public void process(Function<String, Pair<Object,Long>> transformationFunction);
 }

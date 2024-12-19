@@ -21,14 +21,18 @@ import java.util.function.Function;
  * is advanced accordingly, since we are using the external time by default.
  * Optionally, it can register the performance and report it in the performance file.
  *
- * @param <E> The type of the event sent to Esper.
  */
 
-public class FileEsperCustomAdapter<E> implements EsperCustomAdapter<String,E> {
+public class FileEsperCustomAdapter implements EsperCustomAdapter {
 
     private FileReader fileReader;
     private Properties props;
     private EventSender sender;
+    private EventSender senderAuction;
+
+    private EventSender senderPeople;
+    private EventSender senderBid;
+
     private EPEventService epEventService;
     private boolean registerPerf;
     private long maxEvents;
@@ -48,6 +52,19 @@ public class FileEsperCustomAdapter<E> implements EsperCustomAdapter<String,E> {
             this.sender = eventService.getEventSender(props.getProperty(EsperCustomAdapterConfig.EVENT_NAME));
             this.epEventService = eventService;
             this.props=props;
+            this.registerPerf=registerPerf;
+            this.maxEvents = -1;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+    public FileEsperCustomAdapter(String fileName, EPEventService eventService, boolean registerPerf){
+        try {
+            this.fileReader = new FileReader(fileName);
+            this.senderAuction = eventService.getEventSender("AuctionEvent");
+            this.senderPeople = eventService.getEventSender("PersonEvent");
+            this.senderBid = eventService.getEventSender("BidEvent");
+            this.epEventService = eventService;
             this.registerPerf=registerPerf;
             this.maxEvents = -1;
         } catch (FileNotFoundException e) {
@@ -80,7 +97,7 @@ public class FileEsperCustomAdapter<E> implements EsperCustomAdapter<String,E> {
 
 
     @Override
-    public void process(Function<String, Pair<E, Long>> transformationFunction) {
+    public void process(Function<String, Pair<Object, Long>> transformationFunction) {
         // RegisterIng the starting time
         long startTime = System.currentTimeMillis();
 
@@ -95,13 +112,14 @@ public class FileEsperCustomAdapter<E> implements EsperCustomAdapter<String,E> {
              */
             if(maxEvents==-1)
                 while ((line = bufferedReader.readLine()) != null) {
-                    send(transformationFunction.apply(line));
+
+                    send(transformationFunction.apply(line), parseName(line));
                 }
             /*
             Else, we stop when we reach the end of the file, or we reach maximum number of events.
              */
             else while ((line = bufferedReader.readLine()) != null && counter<maxEvents) {
-                send(transformationFunction.apply(line));
+                send(transformationFunction.apply(line), parseName(line));
             }
 
             // Registering the ending time
@@ -118,6 +136,23 @@ public class FileEsperCustomAdapter<E> implements EsperCustomAdapter<String,E> {
 
     }
 
+    /*
+        This function extracts from the file line the name of the event (auction, bid, person)
+     */
+    private String parseName(String line){
+        //split the timestamp from the rest of the string
+        String[] valAndTs = line.split(",", 2);
+        int i = 0;
+        StringBuilder b = new StringBuilder();
+        String tuple = valAndTs[1];
+        /*----Phase 1: parse the type of tuple (Auction, Person or Bid)----*/
+        while(tuple.charAt(i)!= '{'){
+            b.append(tuple.charAt(i));
+            i++;
+        }
+        return b.toString();
+    }
+
 
     private void registerPerformance(long diff){
         double throughput = (double)counter;
@@ -130,7 +165,22 @@ public class FileEsperCustomAdapter<E> implements EsperCustomAdapter<String,E> {
         performanceFileBuilder.close();
     }
 
-    private void send(Pair<E,Long> eventTimestamp){
+    private void send(Pair<Object,Long> eventTimestamp, String eventName){
+        EventSender sender;
+        if(eventName.equals("Auction")){
+            sender = senderAuction;
+        }
+        else if(eventName.equals("Person")){
+            sender = senderPeople;
+        }
+
+        else if(eventName.equals("Bid")){
+            sender = senderBid;
+        }
+
+        else{
+            throw new RuntimeException("Wrong event name in file line");
+        }
         // Advancing time assuring monotonic advancement
         if(epEventService.getCurrentTime()<eventTimestamp.getSecond())
             epEventService.advanceTime(eventTimestamp.getSecond());
