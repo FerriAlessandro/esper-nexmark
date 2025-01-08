@@ -37,28 +37,17 @@ public class FileEsperCustomAdapter implements EsperCustomAdapter {
     private boolean registerPerf;
     private long maxEvents;
     private long counter = 0L;
+    private String queryName;
 
     /**
      * Constructor for normal events generation. It consumes the file until it end.
      * The {@link FileEsperCustomAdapter#maxEvents} variable is thus set to -1.
      *
-     * @param props The properties for setting up the eventual consumer
      * @param eventService The event service used to advance time
      * @param registerPerf whether we want to generate the performance file
      */
-    public FileEsperCustomAdapter(Properties props, EPEventService eventService, boolean registerPerf) {
-        try {
-            this.fileReader = new FileReader(props.getProperty(EsperCustomAdapterConfig.INPUT_FILE_NAME));
-            this.sender = eventService.getEventSender(props.getProperty(EsperCustomAdapterConfig.EVENT_NAME));
-            this.epEventService = eventService;
-            this.props=props;
-            this.registerPerf=registerPerf;
-            this.maxEvents = -1;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-    public FileEsperCustomAdapter(String fileName, EPEventService eventService, boolean registerPerf){
+
+    public FileEsperCustomAdapter(String fileName, EPEventService eventService, boolean registerPerf, String queryName){
         try {
             this.fileReader = new FileReader(fileName);
             this.senderAuction = eventService.getEventSender("AuctionEvent");
@@ -67,33 +56,12 @@ public class FileEsperCustomAdapter implements EsperCustomAdapter {
             this.epEventService = eventService;
             this.registerPerf=registerPerf;
             this.maxEvents = -1;
+            this.queryName = queryName;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
     }
 
-    /**
-     * Constructor for normal events generation. It consumes the file until it reaches either the end, or
-     * a maximum number of events.
-     * The {@link FileEsperCustomAdapter#maxEvents} variable is thus set as a parameter.
-     *
-     * @param props The properties for setting up the eventual consumer
-     * @param eventService The event service used to advance time
-     * @param registerPerf whether we want to generate the performance file
-     * @param maxEvents The maximum number of events we want to consume
-     */
-    public FileEsperCustomAdapter(Properties props, EPEventService eventService,  boolean registerPerf, long maxEvents) {
-        try {
-            this.fileReader = new FileReader(props.getProperty(EsperCustomAdapterConfig.INPUT_FILE_NAME));
-            this.sender = eventService.getEventSender(props.getProperty(EsperCustomAdapterConfig.EVENT_NAME));
-            this.epEventService = eventService;
-            this.props=props;
-            this.registerPerf=registerPerf;
-            this.maxEvents = maxEvents;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
 
 
     @Override
@@ -126,7 +94,7 @@ public class FileEsperCustomAdapter implements EsperCustomAdapter {
             long endTime = System.currentTimeMillis();
 
             if(registerPerf)
-                registerPerformance(endTime - startTime);
+                registerPerformance(endTime - startTime, queryName);
 
             bufferedReader.close();
             fileReader.close();
@@ -154,14 +122,13 @@ public class FileEsperCustomAdapter implements EsperCustomAdapter {
     }
 
 
-    private void registerPerformance(long diff){
+    private void registerPerformance(double diff, String query){
         double throughput = (double)counter;
         throughput = throughput/diff;
-        throughput = throughput *1000;
 
-        PerformanceFileBuilder performanceFileBuilder = new PerformanceFileBuilder(props.getProperty(EsperCustomAdapterConfig.PERF_FILE_NAME), "esper", 1);
-        performanceFileBuilder.register(props.getProperty(EsperCustomAdapterConfig.STATEMENT_NAME), throughput,
-                props.getProperty(EsperCustomAdapterConfig.EXPERIMENT_ID), props.getProperty(EsperCustomAdapterConfig.ON_CLUSTER), counter, diff/1000);
+        PerformanceFileBuilder performanceFileBuilder = new PerformanceFileBuilder("src/main/resources/performances.csv", "esper", 1);
+        performanceFileBuilder.register(throughput,
+                query,  counter, diff);
         performanceFileBuilder.close();
     }
 

@@ -5,10 +5,10 @@ import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPUndeployException;
 import ee.ut.cs.dsg.esperadapter.environment.adapters.EsperCustomAdapter;
 import ee.ut.cs.dsg.esperadapter.environment.adapters.FileEsperCustomAdapter;
+/*
 import ee.ut.cs.dsg.esperadapter.environment.adapters.KafkaEsperCustomAdapter;
+*/
 
-import java.time.Duration;
-import java.util.Properties;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -24,17 +24,14 @@ public class AdaptedEsperEnvironment {
     private final Logger LOGGER = Logger.getLogger(AdaptedEsperEnvironment.class.getName());
     private EsperCustomAdapter adapter;
     private boolean registerPerf;
+    private String queryName;
 
-    public AdaptedEsperEnvironment(EPRuntime runtime) {
-        this.runtime = runtime;
-        this.registerPerf=false;
-        this.adapter= transformationFunction -> LOGGER.warning("Empty Source");
-    }
 
-    public AdaptedEsperEnvironment(EPRuntime runtime, boolean registerPerf) {
+    public AdaptedEsperEnvironment(EPRuntime runtime, boolean registerPerf, String queryName) {
         this.runtime = runtime;
         this.registerPerf=registerPerf;
         this.adapter= transformationFunction -> LOGGER.warning("Empty Source");
+        this.queryName = queryName;
     }
 
     private AdaptedEsperEnvironment(EPRuntime runtime, EsperCustomAdapter adapter) {
@@ -42,7 +39,7 @@ public class AdaptedEsperEnvironment {
         this.adapter = adapter;
     }
 
-    public AdaptedEsperEnvironment fromKafka(Properties props){
+ /*   public AdaptedEsperEnvironment fromKafka(Properties props){
         this.adapter = new KafkaEsperCustomAdapter<>(props, runtime.getEventService(), registerPerf);
         return this;
     }
@@ -56,18 +53,12 @@ public class AdaptedEsperEnvironment {
         this.adapter = new KafkaEsperCustomAdapter<>(props, runtime.getEventService(), minutes, registerPerf);
         return this;
     }
-
-    public AdaptedEsperEnvironment fromFile(Properties props){
-        return new AdaptedEsperEnvironment(this.runtime, new FileEsperCustomAdapter(props, runtime.getEventService(), registerPerf));
-    }
+*/
 
     public AdaptedEsperEnvironment fromFile(String fileName){
-        return new AdaptedEsperEnvironment(this.runtime, new FileEsperCustomAdapter(fileName, runtime.getEventService(), registerPerf));
+        return new AdaptedEsperEnvironment(this.runtime, new FileEsperCustomAdapter(fileName, runtime.getEventService(), registerPerf, queryName));
     }
 
-    public AdaptedEsperEnvironment fromFile(Properties props, long maxEvents){
-        return new AdaptedEsperEnvironment(this.runtime, new FileEsperCustomAdapter(props, runtime.getEventService(), registerPerf, maxEvents));
-    }
 
 
     public void start(Function<String, Pair<Object,Long>> transformationFunction){

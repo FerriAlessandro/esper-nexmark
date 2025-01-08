@@ -147,5 +147,9 @@ public class AuctionEvent implements Serializable {
     public String getExtra() {
         return extra;
     }
+    @Override
+    public String toString(){
+        return "id: "+ this.id+" ,itemName: "+this.itemName+" ,seller: "+this.seller+" ,category: "+this.category+"\n";
+    }
 
 }

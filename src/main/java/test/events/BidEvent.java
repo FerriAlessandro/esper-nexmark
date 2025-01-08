@@ -91,4 +91,8 @@ public class BidEvent implements Serializable {
     public String getExtras() {
         return extra;
     }
+    @Override
+    public String toString(){
+        return "auction: "+ this.auction+" ,bidder: "+this.bidder+" ,price: "+this.price+" ,channel: "+this.channel+"\n";
+    }
 }

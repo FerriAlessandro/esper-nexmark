@@ -7,8 +7,6 @@ import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.compiler.client.EPCompiler;
 import com.espertech.esper.compiler.client.EPCompilerProvider;
 import com.espertech.esper.runtime.client.*;
-import ee.ut.cs.dsg.esperadapter.queries.EPLQueries;
-import ee.ut.cs.dsg.esperadapter.environment.adapters.EsperCustomAdapterConfig;
 import ee.ut.cs.dsg.esperadapter.util.LoggingListener;
 
 import java.io.File;
@@ -29,6 +27,7 @@ public class AdaptedEsperEnvironmentBuilder {
     private final EPCompiler compiler;
     private final Configuration configuration;
     private final Map<String, EPCompiled> compiledStatementList;
+    private String queryName;
 
     public AdaptedEsperEnvironmentBuilder() {
         compiler = EPCompilerProvider.getCompiler();
@@ -36,26 +35,24 @@ public class AdaptedEsperEnvironmentBuilder {
         compiledStatementList = new HashMap<>();
     }
 
-    public AdaptedEsperEnvironmentBuilder withMapType(String name, Map<String,Object> attributes){
-        configuration.getCommon().addEventType(name, attributes);
-        return this;
-    }
 
     // TODO: add supports for multiple types, associating one mapping fucntion for each
     public AdaptedEsperEnvironmentBuilder withBeanType(Class name){
         configuration.getCommon().addEventType(name);
         return this;
     }
+    public AdaptedEsperEnvironmentBuilder addQueryName(String queryName){
+        this.queryName = queryName;
+        return this;
+    }
 
-    //public AdaptedEsperEnvironmentBuilder addStatement(String stmtName){
-        //String stmt = EPLQueries.query(stmtName);
     public AdaptedEsperEnvironmentBuilder addStatement(String query){
 
         CompilerArguments compilerArguments = new CompilerArguments(configuration);
 
         try {
             EPCompiled epCompiled = compiler.compile(query, compilerArguments);
-            compiledStatementList.put("test", epCompiled);
+            compiledStatementList.put(queryName, epCompiled);
 
         } catch (EPCompileException ex) {
             // handle exception here
@@ -64,18 +61,6 @@ public class AdaptedEsperEnvironmentBuilder {
         return this;
     }
 
-    public AdaptedEsperEnvironment buildRuntime(boolean externalClock){
-        EPRuntime runtime = EPRuntimeProvider.getDefaultRuntime(configuration);
-        if(externalClock)
-            runtime.getEventService().clockExternal();
-
-        for (String tempName: compiledStatementList.keySet()
-        ) {
-            deployStatement(tempName, runtime);
-        }
-
-        return new AdaptedEsperEnvironment(runtime);
-    }
 
     public AdaptedEsperEnvironment buildRuntime(boolean externalClock, boolean registerPerf){
         EPRuntime runtime = EPRuntimeProvider.getDefaultRuntime(configuration);
@@ -87,7 +72,7 @@ public class AdaptedEsperEnvironmentBuilder {
             deployStatement(tempName, runtime);
         }
 
-        return new AdaptedEsperEnvironment(runtime, registerPerf);
+        return new AdaptedEsperEnvironment(runtime, registerPerf, queryName);
     }
 
     private void deployStatement(String statementName, EPRuntime runtime){
@@ -107,11 +92,10 @@ public class AdaptedEsperEnvironmentBuilder {
     private void attachLoggingListener(EPStatement statement){
 
         // Creating the output log file
-        File temp = new File("src/main/resources/outputs.txt");
+        File temp = new File("src/main/resources/outputs-"+queryName+".txt");
         try {
             if(!temp.exists()){
                 temp.createNewFile();
-                temp = new File("Output-Esper"+statement.getName()+".txt");
             }
 
             // Attaching the listener to the statement
