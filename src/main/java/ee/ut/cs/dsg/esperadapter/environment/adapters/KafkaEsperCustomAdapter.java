@@ -1,3 +1,4 @@
+/*
 package ee.ut.cs.dsg.esperadapter.environment.adapters;
 
 import com.espertech.esper.common.client.EventSender;
@@ -14,6 +15,7 @@ import java.util.Properties;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
+*/
 /**
  * An adapter for consuming events from a specific Kafka Topic.
  * Since the input is coming from Kafka, the input events will arrive
@@ -26,7 +28,8 @@ import java.util.logging.Logger;
  *
  * @param <K> The key of the Kafka record
  * @param <V> The value of the Kafka record
- */
+ *//*
+
 
 public class KafkaEsperCustomAdapter<K, V> implements EsperCustomAdapter {
 
@@ -41,14 +44,16 @@ public class KafkaEsperCustomAdapter<K, V> implements EsperCustomAdapter {
     private int endCount=0;
     private final boolean registerPerf;
 
-    /**
+    */
+/**
      * Constructor for normal consumption from a Kafka Topic. It consumes the topic continuously.
      * The number of max events is thus set to -1, and the max duration to zero.
      *
      * @param props Properties for consumer setting
      * @param eventService Event Service for advancing Esper time
      * @param registerPerf Whether we want performance file
-     */
+     *//*
+
     public KafkaEsperCustomAdapter(Properties props, EPEventService eventService, boolean registerPerf) {
         this.consumer = new KafkaConsumer<>(props);
         this.consumer.subscribe(Arrays.asList(props.get(EsperCustomAdapterConfig.TOPIC_NAME).toString().split(",")));
@@ -59,7 +64,8 @@ public class KafkaEsperCustomAdapter<K, V> implements EsperCustomAdapter {
         this.registerPerf=registerPerf;
     }
 
-    /**
+    */
+/**
      * Constructor for consumption from a Kafka Topic. It consumes the topic continuously until
      * it reaches a specific number of events.
      *
@@ -67,7 +73,8 @@ public class KafkaEsperCustomAdapter<K, V> implements EsperCustomAdapter {
      * @param epEventService Event Service for advancing Esper time
      * @param maxEvents The maximum number of events we want to consume
      * @param registerPerf Whether we want performance file
-     */
+     *//*
+
     public KafkaEsperCustomAdapter(Properties props, EPEventService epEventService, long maxEvents, boolean registerPerf) {
         this.consumer = new KafkaConsumer<>(props);
         this.consumer.subscribe(Arrays.asList(props.get(EsperCustomAdapterConfig.TOPIC_NAME).toString().split(",")));
@@ -78,7 +85,8 @@ public class KafkaEsperCustomAdapter<K, V> implements EsperCustomAdapter {
         this.registerPerf=registerPerf;
     }
 
-    /**
+    */
+/**
      * Constructor for consumption from a Kafka Topic. It consumes the topic continuously
      * for a specific amount of time.
      *
@@ -86,7 +94,8 @@ public class KafkaEsperCustomAdapter<K, V> implements EsperCustomAdapter {
      * @param epEventService Event Service for advancing Esper time
      * @param duration The maximum consumption time
      * @param registerPerf Whether we want performance file
-     */
+     *//*
+
     public KafkaEsperCustomAdapter(Properties props, EPEventService epEventService, Duration duration, boolean registerPerf) {
         this.consumer = new KafkaConsumer<>(props);
         this.consumer.subscribe(Arrays.asList(props.get(EsperCustomAdapterConfig.TOPIC_NAME).toString().split(",")));
@@ -105,11 +114,13 @@ public class KafkaEsperCustomAdapter<K, V> implements EsperCustomAdapter {
         long duration = this.duration.toMillis();
 
         try{
-            /*
+            */
+/*
             Checks which is the condition tha stop the consumption.
             In case of no stopping criteria, the number of arrived, special ad-hoc "ending events"
             is counted.
-             */
+             *//*
+
             while (((maxEvents == -1) || counter < maxEvents) && ((this.duration.isZero()) || duration>diff) && endCount<9) {
 
                 ConsumerRecords<K, V> records = consumer.poll(Duration.ofSeconds(2));
@@ -137,21 +148,25 @@ public class KafkaEsperCustomAdapter<K, V> implements EsperCustomAdapter {
     }
 
     private void registerPerformance(long diff){
-        double throughput = (double)counter;
+        */
+/*double throughput = (double)counter;
         throughput = throughput/diff;
         throughput = throughput *1000;
 
         PerformanceFileBuilder performanceFileBuilder = new PerformanceFileBuilder(props.getProperty(EsperCustomAdapterConfig.PERF_FILE_NAME), "ee/ut/cs/dsg/esper", 1);
         performanceFileBuilder.register(props.getProperty(EsperCustomAdapterConfig.STATEMENT_NAME), throughput,
                 props.getProperty(EsperCustomAdapterConfig.EXPERIMENT_ID), props.getProperty(EsperCustomAdapterConfig.ON_CLUSTER), counter, diff/1000);
-        performanceFileBuilder.close();
+        performanceFileBuilder.close();*//*
+
     }
 
     private void send(Pair<Object,Long> eventTimestamp){
-        /*
+        */
+/*
         Here we do not advance the timestamp since with multiple partitions it can generate problems
         TODO: create separated timestamp advancements for each context
-         */
+         *//*
+
         sender.sendEvent(eventTimestamp.getFirst());
         counter++;
     }
@@ -159,3 +174,4 @@ public class KafkaEsperCustomAdapter<K, V> implements EsperCustomAdapter {
 
 
 }
+*/

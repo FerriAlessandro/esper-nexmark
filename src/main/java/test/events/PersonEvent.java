@@ -99,4 +99,9 @@ public class PersonEvent implements Serializable {
     public String getExtra() {
         return extra;
     }
+
+    @Override
+    public String toString(){
+        return "id: "+ this.id+" ,Name: "+this.name+" ,email: "+this.emailAddress+" ,city: "+this.city+" ,state: "+this.state+"\n";
+    }
 }
