@@ -12,10 +12,18 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
+/*
+    SELECT itemid, DOLTOEUR(price),
+    bidderId, bidTime
+    FROM bid;
+    DOLTOEUR is a function which takes a price in
+    dollars and converts it to Euros.
+
+* */
 public class Query1 implements Query{
     public double parsingTime= 0;
 
-    public String query="select * from PersonEvent";
+    public String query="SELECT auction, price * 0.85 AS priceInEUR, bidder, dateTime FROM BidEvent;";
 
     @Override
     public void execute() {

@@ -10,7 +10,12 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
-
+/*
+SELECT AVG(CA.price), CA.sellerId
+FROM closed auction CA
+[PARTITION BY CA.sellerId
+ROWS 10 PRECEDING];
+ */
 public class Query6 implements Query{
     public double parsingTime= 0;
 

@@ -10,11 +10,23 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
-
+/*
+SELECT person.name, person.city,
+person.state, open auction.id
+FROM open auction, person, item
+WHERE open auction.sellerId = person.id
+AND person.state = ‘OR’
+AND open auction.itemid = item.id
+AND item.categoryId = 10;
+ */
 public class Query3 implements Query{
     public double parsingTime= 0;
 
-    public String query="select * from PersonEvent";
+    public String query="SELECT PersonEvent.name, PersonEvent.city, PersonEvent.state, AuctionEvent.id AS auctionId\n" +
+            "FROM AuctionEvent#keepall\n" +
+            "JOIN PersonEvent#keepall ON AuctionEvent.seller = PersonEvent.id\n" +
+            "WHERE PersonEvent.state = 'OR'\n" +
+            "AND AuctionEvent.category = 10;\n";
 
     @Override
     public void execute() {

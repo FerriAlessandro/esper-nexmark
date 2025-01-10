@@ -10,7 +10,12 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
-
+/*
+SELECT person.id, person.name
+FROM person [RANGE 12 HOURS PRECEDING],
+open auction [RANGE 12 HOURS PRECEDING]
+WHERE person.id = open auction.sellerId;
+ */
 public class Query8 implements Query{
     public double parsingTime= 0;
 
