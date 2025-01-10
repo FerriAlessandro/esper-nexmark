@@ -10,11 +10,21 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
-
+/*
+SELECT itemid, price
+FROM bid
+WHERE itemid = 1007 OR
+itemid = 1020 OR
+itemid = 2001 OR
+itemid = 2019 OR
+itemid = 1087;
+ */
 public class Query2 implements Query{
     public double parsingTime= 0;
 
-    public String query="select * from PersonEvent";
+    public String query="SELECT auction, price\n" +
+            "FROM BidEvent\n" +
+            "WHERE auction IN (1007, 1020, 2001, 2019, 1087);";
 
     @Override
     public void execute() {

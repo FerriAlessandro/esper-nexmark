@@ -10,7 +10,13 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
-
+/*
+SELECT bid.price, bid.itemid
+FROM bid where bid.price =
+(SELECT MAX(bid.price)
+FROM bid [FIXEDRANGE
+10 MINUTES PRECEDING]);
+ */
 public class Query7 implements Query{
     public double parsingTime= 0;
 

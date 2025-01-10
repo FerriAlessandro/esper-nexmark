@@ -10,7 +10,13 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
-
+/*
+SELECT C.id, AVG(CA.price)
+FROM category C, item I, closed auction CA
+WHERE C.id = I.categoryId
+AND I.id = CA.itemid
+GROUP BY C.id;
+ */
 public class Query4 implements Query{
     public double parsingTime= 0;
 

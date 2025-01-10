@@ -10,11 +10,26 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
-
+/*
+SELECT bid.itemid
+FROM bid [RANGE 60 MINUTES PRECEDING]
+WHERE (SELECT COUNT(bid.itemid)
+FROM bid [PARTITION BY bid.itemid
+RANGE 60 MINUTES PRECEDING])
+>= ALL (SELECT COUNT(bid.itemid)
+FROM bid [PARTITION BY bid.itemid
+RANGE 60 MINUTES PRECEDING];
+ */
 public class Query5 implements Query{
     public double parsingTime= 0;
 
-    public String query="select * from PersonEvent";
+    public String query="SELECT auction, COUNT(*)\n" +
+            "FROM BidEvent.win:time(60 minutes)\n" +
+            "GROUP BY auction\n" +
+            "HAVING COUNT(*)>=ALL(" +
+            "SELECT COUNT(*)\n" +
+            "FROM BidEvent.win:time(60 minutes)\n" +
+            "GROUP BY auction)";
 
     @Override
     public void execute() {
