@@ -1,2 +1,5 @@
-id: 1001 ,Name: Peter Abrams ,email: qwvngv@aqx.com ,city: Phoenix ,state: AZ
-
+{bid.auction=1002, bid.price=1393677}
+{bid.auction=1000, bid.price=17851222}
+{bid.auction=1000, bid.price=41619826}
+{bid.auction=1006, bid.price=44791644}
+{bid.auction=1008, bid.price=85802771}

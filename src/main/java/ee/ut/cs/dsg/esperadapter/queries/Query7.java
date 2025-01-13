@@ -20,7 +20,12 @@ FROM bid [FIXEDRANGE
 public class Query7 implements Query{
     public double parsingTime= 0;
 
-    public String query="select * from PersonEvent";
+    public String query="SELECT bid.price, bid.auction\n" +
+            "FROM BidEvent.win:time(10 minutes) AS bid\n" +
+            "WHERE bid.price = (\n" +
+            "    SELECT MAX(price) \n" +
+            "    FROM BidEvent.win:time(10 minutes)\n" +
+            ");";
 
     @Override
     public void execute() {
