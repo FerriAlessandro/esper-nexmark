@@ -27,12 +27,14 @@ public class AdaptedEsperEnvironmentBuilder {
     private final EPCompiler compiler;
     private final Configuration configuration;
     private final Map<String, EPCompiled> compiledStatementList;
+    private final Map<String, Boolean> listeners;
     private String queryName;
 
     public AdaptedEsperEnvironmentBuilder() {
         compiler = EPCompilerProvider.getCompiler();
         configuration = new Configuration();
         compiledStatementList = new HashMap<>();
+        listeners = new HashMap<>();
     }
 
 
@@ -46,13 +48,14 @@ public class AdaptedEsperEnvironmentBuilder {
         return this;
     }
 
-    public AdaptedEsperEnvironmentBuilder addStatement(String query){
+    public AdaptedEsperEnvironmentBuilder addStatement(String query, String statementName, boolean attachListener){
 
         CompilerArguments compilerArguments = new CompilerArguments(configuration);
 
         try {
             EPCompiled epCompiled = compiler.compile(query, compilerArguments);
-            compiledStatementList.put(queryName, epCompiled);
+            compiledStatementList.put(statementName, epCompiled);
+            listeners.put(statementName, attachListener);
 
         } catch (EPCompileException ex) {
             // handle exception here
@@ -79,14 +82,15 @@ public class AdaptedEsperEnvironmentBuilder {
         EPDeployment deployment;
         try {
             deployment = runtime.getDeploymentService().deploy(compiledStatementList.get(statementName));
-
         } catch (EPDeployException ex) {
             throw new RuntimeException(ex);
         }
 
-        //attachLoggingListener(runtime.getDeploymentService().getStatement(deployment.getDeploymentId(), statementName));
-        attachLoggingListener(runtime.getDeploymentService().getStatement(deployment.getDeploymentId(), "stmt-0"));
+        if(listeners.get(statementName)) {
+            //attachLoggingListener(runtime.getDeploymentService().getStatement(deployment.getDeploymentId(), statementName));
+            attachLoggingListener(runtime.getDeploymentService().getStatement(deployment.getDeploymentId(), statementName));
 //The second one works, the first one doesn't. The deployment does not keep the original statement name for some reason
+        }
     }
 
     private void attachLoggingListener(EPStatement statement){

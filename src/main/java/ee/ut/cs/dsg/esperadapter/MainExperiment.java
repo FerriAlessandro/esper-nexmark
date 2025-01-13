@@ -26,7 +26,7 @@ public class MainExperiment {
         //queries.add(new Query5());
         //queries.add(new Query6());
         //queries.add(new Query7());
-        queries.add(new Query8());
+        //queries.add(new Query8());
         String path = "src/main/resources/performances.csv";
         try {
             File file = new File(path);

@@ -35,7 +35,7 @@ public class Query7 implements Query{
                 .withBeanType(BidEvent.class)
                 .withBeanType(PersonEvent.class)
                 .addQueryName("query-7")
-                .addStatement(query)
+                .addStatement(query, "stmt-0", true)
                 .buildRuntime(true, true)
                 .fromFile("src/main/resources/events.txt").start(s -> {
                     long start = System.currentTimeMillis();
