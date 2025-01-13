@@ -20,7 +20,17 @@ GROUP BY C.id;
 public class Query4 implements Query{
     public double parsingTime= 0;
 
-    public String query="select * from PersonEvent";
+    public String auctionsWindow="CREATE WINDOW AuctionsWindow#keepall AS AuctionEvent";
+    public String insertAuctions="INSERT INTO AuctionsWindow SELECT * FROM AuctionEvent";
+    public String closedAuctionsWindow = "CREATE WINDOW ClosedAuctions#keepall AS AuctionEvent";
+    public String insertClosedAuctions= "ON AuctionEvent AS new_event" +
+            "INSERT INTO ClosedAuctions" +
+            "SELECT * FROM AuctionsWindow " +
+            "WHERE new_event.timestamp> AuctionsWindow.expires";
+    public String evictFromAuctions = "ON ClosedAuctions as closed_auction" +
+            "DELETE FROM AuctionsWindow " +
+            "WHERE AuctionsWindow.id = closed_auction.id";
+
 
     @Override
     public void execute() {
@@ -30,7 +40,11 @@ public class Query4 implements Query{
                 .withBeanType(BidEvent.class)
                 .withBeanType(PersonEvent.class)
                 .addQueryName("query-4")
-                .addStatement(query)
+                /*.addStatement(auctionsWindow)
+                .addStatement(closedAuctionsWindow)
+                .addStatement(insertAuctions)
+                .addStatement(insertClosedAuctions)
+                .addStatement(evictFromAuctions)*/
                 .buildRuntime(true, true)
                 .fromFile("src/main/resources/events.txt").start(s -> {
                     long start = System.currentTimeMillis();
