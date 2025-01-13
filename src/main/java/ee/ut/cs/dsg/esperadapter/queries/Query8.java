@@ -13,13 +13,16 @@ import java.util.List;
 /*
 SELECT person.id, person.name
 FROM person [RANGE 12 HOURS PRECEDING],
-open auction [RANGE 12 HOURS PRECEDING]
-WHERE person.id = open auction.sellerId;
+auction [RANGE 12 HOURS PRECEDING]
+WHERE person.id = auction.sellerId;
  */
 public class Query8 implements Query{
     public double parsingTime= 0;
 
-    public String query="select * from PersonEvent";
+    public String query="SELECT person.id, person.name\n" +
+            "FROM PersonEvent.win:time(12 hours) AS person,\n" +
+            "     AuctionEvent.win:time(12 hours) AS auction\n" +
+            "WHERE person.id = auction.seller;";
 
     @Override
     public void execute() {
