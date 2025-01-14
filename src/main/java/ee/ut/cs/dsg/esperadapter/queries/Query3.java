@@ -22,7 +22,8 @@ AND item.categoryId = 10;
 public class Query3 implements Query{
     public double parsingTime= 0;
 
-    public String query="SELECT PersonEvent.name, PersonEvent.city, PersonEvent.state, AuctionEvent.id AS auctionId\n" +
+    public String query="@name('q3') " +
+            "SELECT PersonEvent.name, PersonEvent.city, PersonEvent.state, AuctionEvent.id AS auctionId\n" +
             "FROM AuctionEvent#keepall\n" +
             "JOIN PersonEvent#keepall ON AuctionEvent.seller = PersonEvent.id\n" +
             "WHERE PersonEvent.state = 'OR'\n" +
@@ -36,7 +37,7 @@ public class Query3 implements Query{
                 .withBeanType(BidEvent.class)
                 .withBeanType(PersonEvent.class)
                 .addQueryName("query-3")
-                .addStatement(query, "stmt-0", true)
+                .addStatement(query, "q3", true)
                 .buildRuntime(true, true)
                 .fromFile("src/main/resources/events.txt").start(s -> {
                     long start = System.currentTimeMillis();

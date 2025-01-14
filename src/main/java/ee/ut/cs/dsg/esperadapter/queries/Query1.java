@@ -23,7 +23,7 @@ import java.util.List;
 public class Query1 implements Query{
     public double parsingTime= 0;
 
-    public String query="@name('foo') SELECT auction, price * 0.85 AS priceInEUR, bidder, dateTime FROM BidEvent;";
+    public String query="@name('q1') SELECT auction, price * 0.85 AS priceInEUR, bidder, dateTime FROM BidEvent;";
 
     @Override
     public void execute() {
@@ -34,7 +34,7 @@ public class Query1 implements Query{
                 .withBeanType(BidEvent.class)
                 .withBeanType(PersonEvent.class)
                 .addQueryName("query-1")
-                .addStatement(query, "foo", true)
+                .addStatement(query, "q1", true)
                 .buildRuntime(true, true)
                 .fromFile("src/main/resources/events.txt").start(s -> {
                     long start = System.currentTimeMillis();

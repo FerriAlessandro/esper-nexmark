@@ -19,7 +19,8 @@ WHERE person.id = auction.sellerId;
 public class Query8 implements Query{
     public double parsingTime= 0;
 
-    public String query="SELECT person.id, person.name\n" +
+    public String query="@name('q8') " +
+            "SELECT person.id, person.name\n" +
             "FROM PersonEvent.win:time(12 hours) AS person,\n" +
             "     AuctionEvent.win:time(12 hours) AS auction\n" +
             "WHERE person.id = auction.seller;";
@@ -32,7 +33,7 @@ public class Query8 implements Query{
                 .withBeanType(BidEvent.class)
                 .withBeanType(PersonEvent.class)
                 .addQueryName("query-8")
-                .addStatement(query, "stmt-0", true)
+                .addStatement(query, "q8", true)
                 .buildRuntime(true, true)
                 .fromFile("src/main/resources/events.txt").start(s -> {
                     long start = System.currentTimeMillis();
