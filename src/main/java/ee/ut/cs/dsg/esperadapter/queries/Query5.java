@@ -23,7 +23,8 @@ RANGE 60 MINUTES PRECEDING];
 public class Query5 implements Query{
     public double parsingTime= 0;
 
-    public String query="SELECT auction, COUNT(*)\n" +
+    public String query="@name('q5') " +
+            "SELECT auction, COUNT(*)\n" +
             "FROM BidEvent.win:time(60 minutes)\n" +
             "GROUP BY auction\n" +
             "HAVING COUNT(*)>=ALL(" +
@@ -39,7 +40,7 @@ public class Query5 implements Query{
                 .withBeanType(BidEvent.class)
                 .withBeanType(PersonEvent.class)
                 .addQueryName("query-5")
-                .addStatement(query, "stmt-0", true)
+                .addStatement(query, "q5", true)
                 .buildRuntime(true, true)
                 .fromFile("src/main/resources/events.txt").start(s -> {
                     long start = System.currentTimeMillis();

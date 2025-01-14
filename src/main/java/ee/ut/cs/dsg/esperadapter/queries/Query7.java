@@ -20,7 +20,8 @@ FROM bid [FIXEDRANGE
 public class Query7 implements Query{
     public double parsingTime= 0;
 
-    public String query="SELECT bid.price, bid.auction\n" +
+    public String query="@name('q7') " +
+            "SELECT bid.price, bid.auction\n" +
             "FROM BidEvent.win:time(10 minutes) AS bid\n" +
             "WHERE bid.price = (\n" +
             "    SELECT MAX(price) \n" +
@@ -35,7 +36,7 @@ public class Query7 implements Query{
                 .withBeanType(BidEvent.class)
                 .withBeanType(PersonEvent.class)
                 .addQueryName("query-7")
-                .addStatement(query, "stmt-0", true)
+                .addStatement(query, "q7", true)
                 .buildRuntime(true, true)
                 .fromFile("src/main/resources/events.txt").start(s -> {
                     long start = System.currentTimeMillis();

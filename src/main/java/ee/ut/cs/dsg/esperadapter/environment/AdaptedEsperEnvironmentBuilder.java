@@ -2,6 +2,8 @@ package ee.ut.cs.dsg.esperadapter.environment;
 
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.configuration.Configuration;
+import com.espertech.esper.common.client.module.Module;
+import com.espertech.esper.common.client.module.ParseException;
 import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.compiler.client.EPCompiler;
@@ -65,6 +67,20 @@ public class AdaptedEsperEnvironmentBuilder {
     }
 
 
+    public AdaptedEsperEnvironment addStatementFromFile (boolean externalClock, boolean registerPerf, File query, String listenerStatement) throws IOException, ParseException, EPCompileException, EPDeployException {
+        EPRuntime runtime = EPRuntimeProvider.getDefaultRuntime(configuration);
+        EPCompiler compiler = EPCompilerProvider.getCompiler();
+        Module mod = compiler.readModule(query);
+        if(externalClock)
+            runtime.getEventService().clockExternal();
+        CompilerArguments compilerArguments = new CompilerArguments(configuration);
+        EPCompiled compiled = compiler.compile(mod, compilerArguments);
+
+        EPDeployment deploy = runtime.getDeploymentService().deploy(compiled);
+
+        attachLoggingListener(runtime.getDeploymentService().getStatement(deploy.getDeploymentId(), listenerStatement));
+        return new AdaptedEsperEnvironment(runtime, registerPerf, queryName);
+    }
     public AdaptedEsperEnvironment buildRuntime(boolean externalClock, boolean registerPerf){
         EPRuntime runtime = EPRuntimeProvider.getDefaultRuntime(configuration);
         if(externalClock)

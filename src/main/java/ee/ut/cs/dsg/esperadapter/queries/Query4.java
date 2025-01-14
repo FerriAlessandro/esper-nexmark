@@ -1,6 +1,9 @@
 package ee.ut.cs.dsg.esperadapter.queries;
 
+import com.espertech.esper.common.client.module.ParseException;
 import com.espertech.esper.common.internal.collection.Pair;
+import com.espertech.esper.compiler.client.EPCompileException;
+import com.espertech.esper.runtime.client.EPDeployException;
 import ee.ut.cs.dsg.esperadapter.environment.AdaptedEsperEnvironmentBuilder;
 import test.events.AuctionEvent;
 import test.events.BidEvent;
@@ -10,6 +13,8 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
+
 /*
 SELECT C.id, AVG(CA.price)
 FROM category C, item I, closed auction CA
@@ -19,33 +24,18 @@ GROUP BY C.id;
  */
 public class Query4 implements Query{
     public double parsingTime= 0;
-
-    public String auctionsWindow="CREATE WINDOW AuctionsWindow#keepall AS AuctionEvent";
-    public String insertAuctions="INSERT INTO AuctionsWindow SELECT * FROM AuctionEvent";
-    public String closedAuctionsWindow = "CREATE WINDOW ClosedAuctions#keepall AS AuctionEvent";
-    public String insertClosedAuctions= "ON AuctionEvent AS new_event" +
-            "INSERT INTO ClosedAuctions" +
-            "SELECT * FROM AuctionsWindow " +
-            "WHERE new_event.timestamp> AuctionsWindow.expires";
-    public String evictFromAuctions = "ON ClosedAuctions as closed_auction" +
-            "DELETE FROM AuctionsWindow " +
-            "WHERE AuctionsWindow.id = closed_auction.id";
+    File queryFile = new File(Objects.requireNonNull(Query4.class.getResource("/query4.epl")).getPath());
 
 
     @Override
-    public void execute() {
+    public void execute() throws EPDeployException, IOException, ParseException, EPCompileException {
         AdaptedEsperEnvironmentBuilder builder = new AdaptedEsperEnvironmentBuilder();
         parsingTime = 0;
         builder.withBeanType(AuctionEvent.class)
                 .withBeanType(BidEvent.class)
                 .withBeanType(PersonEvent.class)
                 .addQueryName("query-4")
-                /*.addStatement(auctionsWindow)
-                .addStatement(closedAuctionsWindow)
-                .addStatement(insertAuctions)
-                .addStatement(insertClosedAuctions)
-                .addStatement(evictFromAuctions)*/
-                .buildRuntime(true, true)
+                .addStatementFromFile(true, true, queryFile, "q4-11")
                 .fromFile("src/main/resources/events.txt").start(s -> {
                     long start = System.currentTimeMillis();
                     String[] valAndTs = s.split(",", 2);

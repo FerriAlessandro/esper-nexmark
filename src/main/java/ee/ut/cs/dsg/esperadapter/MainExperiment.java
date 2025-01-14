@@ -1,6 +1,9 @@
 package ee.ut.cs.dsg.esperadapter;
 
 
+import com.espertech.esper.common.client.module.ParseException;
+import com.espertech.esper.compiler.client.EPCompileException;
+import com.espertech.esper.runtime.client.EPDeployException;
 import com.opencsv.CSVWriter;
 import ee.ut.cs.dsg.esperadapter.queries.*;
 
@@ -14,7 +17,7 @@ import java.util.List;
 
 public class MainExperiment {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws EPDeployException, IOException, ParseException, EPCompileException {
 
         List<Query> queries = new ArrayList<>();
         int iterations = 10;
@@ -22,7 +25,7 @@ public class MainExperiment {
         //queries.add(new Query1());
         //queries.add(new Query2());
         //queries.add(new Query3());
-        //queries.add(new Query4());
+        queries.add(new Query4());
         //queries.add(new Query5());
         //queries.add(new Query6());
         //queries.add(new Query7());

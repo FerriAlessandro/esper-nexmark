@@ -22,7 +22,7 @@ itemid = 1087;
 public class Query2 implements Query{
     public double parsingTime= 0;
 
-    public String query="SELECT auction, price\n" +
+    public String query="@name('q2') SELECT auction, price\n" +
             "FROM BidEvent\n" +
             "WHERE auction IN (1007, 1020, 2001, 2019, 1087);";
 
@@ -34,7 +34,7 @@ public class Query2 implements Query{
                 .withBeanType(BidEvent.class)
                 .withBeanType(PersonEvent.class)
                 .addQueryName("query-2")
-                .addStatement(query, "stmt-0", true)
+                .addStatement(query, "q2", true)
                 .buildRuntime(true, true)
                 .fromFile("src/main/resources/events.txt").start(s -> {
                     long start = System.currentTimeMillis();
