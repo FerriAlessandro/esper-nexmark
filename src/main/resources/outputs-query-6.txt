@@ -1,2 +1,4 @@
-id: 1001 ,Name: Peter Abrams ,email: qwvngv@aqx.com ,city: Phoenix ,state: AZ
-
+{avg(WinningBidsWindow.price)=2955108.0, ClosedAuctions.seller=1000}
+{avg(WinningBidsWindow.price)=526502.0, ClosedAuctions.seller=1003}
+{avg(WinningBidsWindow.price)=2174392.5, ClosedAuctions.seller=1000}
+{avg(WinningBidsWindow.price)=2.5909361E7, ClosedAuctions.seller=1006}

@@ -1,0 +1,42 @@
+@name('q6-1') CREATE WINDOW AuctionsWindow#keepall AS AuctionEvent;
+@name('q6-2') CREATE WINDOW ClosedAuctions#length(10) AS AuctionEvent;
+@name('q6-3') CREATE WINDOW BidsWindow#keepall AS BidEvent;
+@name('q6-4') CREATE WINDOW WinningBidsWindow#keepall AS BidEvent;
+
+
+@name('q6-5') INSERT INTO AuctionsWindow SELECT * FROM AuctionEvent;
+@name('q6-6') INSERT INTO BidsWindow SELECT * FROM BidEvent;
+
+@name('q6-7') ON AuctionEvent AS new_event
+INSERT INTO ClosedAuctions
+SELECT AuctionsWindow.timestamp, AuctionsWindow.key, AuctionsWindow.id, AuctionsWindow.itemName,
+                               AuctionsWindow.description, AuctionsWindow.initialBid, AuctionsWindow.reserve,
+                               AuctionsWindow.dateTime, AuctionsWindow.expires, AuctionsWindow.seller, AuctionsWindow.category, AuctionsWindow.extra
+                               FROM AuctionsWindow
+WHERE new_event.timestamp > AuctionsWindow.expires;
+
+@name('q6-8') ON ClosedAuctions as closed_auction
+DELETE FROM AuctionsWindow
+WHERE AuctionsWindow.id = closed_auction.id;
+
+@name('q6-9') ON ClosedAuctions as closed_auction
+INSERT INTO WinningBidsWindow
+SELECT BidsWindow.timestamp, BidsWindow.key, BidsWindow.auction, BidsWindow.bidder, BidsWindow.price,
+BidsWindow.channel, BidsWindow.url, BidsWindow.dateTime, BidsWindow.extras
+FROM BidsWindow
+WHERE BidsWindow.auction = closed_auction.id AND BidsWindow.price >= ALL (
+SELECT b2.price
+FROM BidsWindow as b2
+WHERE b2.auction = closed_auction.id);
+
+@name('q6-10') ON WinningBidsWindow as winning_bid
+DELETE FROM BidsWindow
+WHERE BidsWindow.auction = winning_bid.auction;
+
+
+@name('q6-11') SELECT ClosedAuctions.seller, AVG(WinningBidsWindow.price)
+FROM WinningBidsWindow, ClosedAuctions
+WHERE WinningBidsWindow.auction = ClosedAuctions.id
+GROUP BY ClosedAuctions.seller
+
+
