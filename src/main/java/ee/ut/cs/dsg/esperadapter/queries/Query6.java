@@ -1,6 +1,9 @@
 package ee.ut.cs.dsg.esperadapter.queries;
 
+import com.espertech.esper.common.client.module.ParseException;
 import com.espertech.esper.common.internal.collection.Pair;
+import com.espertech.esper.compiler.client.EPCompileException;
+import com.espertech.esper.runtime.client.EPDeployException;
 import ee.ut.cs.dsg.esperadapter.environment.AdaptedEsperEnvironmentBuilder;
 import test.events.AuctionEvent;
 import test.events.BidEvent;
@@ -10,6 +13,8 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
+
 /*
 SELECT AVG(CA.price), CA.sellerId
 FROM closed auction CA
@@ -19,18 +24,16 @@ ROWS 10 PRECEDING];
 public class Query6 implements Query{
     public double parsingTime= 0;
 
-    public String query="select * from PersonEvent";
-
+    File queryFile = new File(Objects.requireNonNull(Query6.class.getResource("/query6.epl")).getPath());
     @Override
-    public void execute() {
+    public void execute() throws EPDeployException, IOException, ParseException, EPCompileException {
         AdaptedEsperEnvironmentBuilder builder = new AdaptedEsperEnvironmentBuilder();
         parsingTime = 0;
         builder.withBeanType(AuctionEvent.class)
                 .withBeanType(BidEvent.class)
                 .withBeanType(PersonEvent.class)
                 .addQueryName("query-6")
-                .addStatement(query, "stmt-0", true)
-                .buildRuntime(true, true)
+                .addStatementFromFile(true, true, queryFile, "q6-11")
                 .fromFile("src/main/resources/events.txt").start(s -> {
                     long start = System.currentTimeMillis();
                     String[] valAndTs = s.split(",", 2);
