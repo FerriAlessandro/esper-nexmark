@@ -35,7 +35,7 @@ public class Query4 implements Query{
                 .withBeanType(BidEvent.class)
                 .withBeanType(PersonEvent.class)
                 .addQueryName("query-4")
-                .addStatementFromFile(true, true, queryFile, "q4-11")
+                .addStatementFromFile(true, true, queryFile, "")
                 .fromFile("src/main/resources/events.txt").start(s -> {
                     long start = System.currentTimeMillis();
                     String[] valAndTs = s.split(",", 2);

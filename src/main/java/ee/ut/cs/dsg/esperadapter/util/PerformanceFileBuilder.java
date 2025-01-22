@@ -31,7 +31,7 @@ public class PerformanceFileBuilder {
     }
 
     public void register(double throughput, String expName, long inputSize, double secondsPassed){
-        String[] row = new String[]{expName, String.valueOf(throughput), String.valueOf(inputSize), String.valueOf(secondsPassed)};
+        String[] row = new String[]{expName, String.valueOf(throughput), String.valueOf(inputSize+1), String.valueOf(secondsPassed)};
         writer.writeNext(row);
         try {
             writer.flush();

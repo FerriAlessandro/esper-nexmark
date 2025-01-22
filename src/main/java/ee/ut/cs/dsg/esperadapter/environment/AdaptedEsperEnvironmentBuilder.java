@@ -77,8 +77,8 @@ public class AdaptedEsperEnvironmentBuilder {
         EPCompiled compiled = compiler.compile(mod, compilerArguments);
 
         EPDeployment deploy = runtime.getDeploymentService().deploy(compiled);
-
-        attachLoggingListener(runtime.getDeploymentService().getStatement(deploy.getDeploymentId(), listenerStatement));
+        if(!listenerStatement.isEmpty())
+            attachLoggingListener(runtime.getDeploymentService().getStatement(deploy.getDeploymentId(), listenerStatement));
         return new AdaptedEsperEnvironment(runtime, registerPerf, queryName);
     }
     public AdaptedEsperEnvironment buildRuntime(boolean externalClock, boolean registerPerf){

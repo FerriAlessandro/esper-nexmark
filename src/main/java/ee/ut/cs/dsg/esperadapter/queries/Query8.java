@@ -33,7 +33,7 @@ public class Query8 implements Query{
                 .withBeanType(BidEvent.class)
                 .withBeanType(PersonEvent.class)
                 .addQueryName("query-8")
-                .addStatement(query, "q8", true)
+                .addStatement(query, "q8", false)
                 .buildRuntime(true, true)
                 .fromFile("src/main/resources/events.txt").start(s -> {
                     long start = System.currentTimeMillis();
