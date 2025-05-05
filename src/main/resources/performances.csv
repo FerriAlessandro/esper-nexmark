@@ -1,2 +1,2 @@
 "Experiment-Name","Throughput(events/ms)","InputSize","MillisecondsPassed","ReadLine(ms)","ParsingTime(ms)"
-"query-2","96.18159084351255","1000001","10397.0","1549.0","5983.0"
+"query-2","107.85159620362381","1000001","9272.0","1567.0","4799.0"
