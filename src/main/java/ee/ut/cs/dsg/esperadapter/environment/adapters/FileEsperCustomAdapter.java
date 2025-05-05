@@ -68,33 +68,37 @@ public class FileEsperCustomAdapter implements EsperCustomAdapter {
     public void process(Function<String, Pair<Object, Long>> transformationFunction) {
         // RegisterIng the starting time
         long startTime = System.currentTimeMillis();
-
+        long readTime = 0;
+        long startRead = 0;
         try (BufferedReader bufferedReader = new BufferedReader(fileReader)) {
             String line;
-
-            // Reading the first line of the file
-            bufferedReader.readLine();
 
             /*
             In case of maxEvents=-1, we consume the whole file.
              */
-            if(maxEvents==-1)
-                while ((line = bufferedReader.readLine()) != null) {
-
+            if(maxEvents==-1) {
+                startRead = System.currentTimeMillis();
+                line = bufferedReader.readLine();
+                readTime+= (System.currentTimeMillis()-startRead);
+                while (line != null) {
                     send(transformationFunction.apply(line), parseName(line));
+                    startRead = System.currentTimeMillis();
+                    line = bufferedReader.readLine();
+                    readTime+= (System.currentTimeMillis()-startRead);
                 }
+            }
             /*
             Else, we stop when we reach the end of the file, or we reach maximum number of events.
              */
-            else while ((line = bufferedReader.readLine()) != null && counter<maxEvents) {
+            /*else while ((line = bufferedReader.readLine()) != null && counter<maxEvents) {
                 send(transformationFunction.apply(line), parseName(line));
-            }
+            }*/
 
             // Registering the ending time
             long endTime = System.currentTimeMillis();
 
             if(registerPerf)
-                registerPerformance(endTime - startTime, queryName);
+                registerPerformance(endTime - startTime, queryName, readTime);
 
             bufferedReader.close();
             fileReader.close();
@@ -129,6 +133,16 @@ public class FileEsperCustomAdapter implements EsperCustomAdapter {
         PerformanceFileBuilder performanceFileBuilder = new PerformanceFileBuilder("src/main/resources/performances.csv", "esper", 1);
         performanceFileBuilder.register(throughput,
                 query,  counter, diff);
+        performanceFileBuilder.close();
+    }
+
+    private void registerPerformance(double diff, String query, double readTime){
+        double throughput = (double)counter;
+        throughput = throughput/diff;
+
+        PerformanceFileBuilder performanceFileBuilder = new PerformanceFileBuilder("src/main/resources/performances.csv", "esper", 1);
+        performanceFileBuilder.register(throughput,
+                query,  counter, diff, readTime);
         performanceFileBuilder.close();
     }
 

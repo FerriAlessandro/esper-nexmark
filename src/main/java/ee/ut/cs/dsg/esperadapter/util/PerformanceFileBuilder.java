@@ -18,7 +18,7 @@ public class PerformanceFileBuilder {
             if(!file.exists()){
                 file.createNewFile();
                 this.writer = new CSVWriter(new FileWriter(file, true));
-                String[] firstRow = new String[]{"Experiment-Name", "Throughput", "InputSize", "SecondsPassed", "ParsingTime"};
+                String[] firstRow = new String[]{"Experiment-Name", "Throughput", "InputSize", "SecondsPassed", "ReadLine Time", "ParsingTime"};
                 this.writer.writeNext(firstRow);
                 this.writer.flush();
             }
@@ -32,6 +32,15 @@ public class PerformanceFileBuilder {
 
     public void register(double throughput, String expName, long inputSize, double secondsPassed){
         String[] row = new String[]{expName, String.valueOf(throughput), String.valueOf(inputSize+1), String.valueOf(secondsPassed)};
+        writer.writeNext(row);
+        try {
+            writer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public void register(double throughput, String expName, long inputSize, double secondsPassed, double readTime){
+        String[] row = new String[]{expName, String.valueOf(throughput), String.valueOf(inputSize+1), String.valueOf(secondsPassed), String.valueOf(readTime)};
         writer.writeNext(row);
         try {
             writer.flush();
